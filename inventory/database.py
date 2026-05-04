@@ -1,14 +1,19 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from redis_om import get_redis_connection
 
-# Učitavamo promenljive iz .env fajla
-load_dotenv()
+class Settings(BaseSettings):
+    model_config = ConfigDict(extra="ignore", env_file=".env")
+    
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_password: str = ""
 
-# Izvlačimo podatke koristeći os.getenv
+settings = Settings()
+
 redis = get_redis_connection(
-    host=os.getenv("REDIS_HOST"),
-    port=int(os.getenv("REDIS_PORT")),
-    password=os.getenv("REDIS_PASSWORD"),
+    host=settings.redis_host,
+    port=settings.redis_port,
+    password=settings.redis_password if settings.redis_password else None,
     decode_responses=True
 )
